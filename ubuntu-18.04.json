@@ -1,0 +1,69 @@
+{
+  "provisioners": [ {
+    "type": "file",
+    "source": "drpcli",
+    "destination": "/tmp/drpcli" 
+   },
+   {
+      "type": "shell",
+      "execute_command": "echo 'mike' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/setup.sh"
+    }
+  ],
+  "builders":
+  [
+    {
+      "type": "qemu",
+      "iso_url": "http://cdimage.ubuntu.com/releases/18.04.4/release/ubuntu-18.04.4-server-amd64.iso",
+      "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
+      "iso_checksum_type": "sha256",
+      "output_directory": "output_ubuntu_18.04",
+      "shutdown_command": "echo 'mike' | sudo -S shutdown -P now",
+      "disk_size": "5000M",
+      "format": "raw",
+      "accelerator": "kvm",
+      "http_directory": "ubuntu/http/",
+      "ssh_username": "mike",
+      "ssh_password": "r00tme",
+      "ssh_timeout": "20m",
+      "vm_name": "tdhtest",
+      "net_device": "e1000",
+      "disk_interface": "scsi",
+      "boot_wait": "10s",
+      "boot_command": [
+        "<esc><wait>",
+        "<esc><wait>",
+        "<enter><wait>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US.UTF-8<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US.UTF-8<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=yourmom<wait>",
+        " grub-installer/bootdev=default<wait>",
+        " noapic<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
+        " -- <wait>",
+        "<enter><wait>" 
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "compress",
+        "output": "yourmom_{{.BuildName}}.tar.gz",
+        "compression_level": 9
+      }
+    ]
+  ]
+}
